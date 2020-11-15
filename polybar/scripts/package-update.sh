@@ -9,8 +9,7 @@ CHECK=0
 [[ $(cat $TEMPFILE 2> /dev/null) -lt $PACKAGES ]] && CHECK=1
 
 if [[ $PACKAGES -gt 0 ]] && [[ $CHECK -eq 1 ]]; then 
-	dunstify -i /usr/share/icons/Adwaita/24x24/mimetypes/package-x-generic-symbolic.symbolic.png \
-		"Package update" "$PACKAGES new package update"
+	dunstify "Package update" "📦 $PACKAGES new package update"
 
 	echo "$PACKAGES" > "$TEMPFILE"
 	echo "$PACKAGES"

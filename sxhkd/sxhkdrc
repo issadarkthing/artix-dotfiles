@@ -4,15 +4,15 @@
 
 # open default terminal
 super + Return
-	kitty
+	alacritty --working-directory ~
 
 # open urxvt
-super + shift + return
-	urxvt
+super + shift + Return
+	kitty
 
 # program launcher
 super + d
-	dmenu_run -c
+	dmenu_run
 
 # make sxhkd reload its configuration files:
 super + Escape
@@ -22,6 +22,9 @@ super + Escape
 # show sxhkd keybindings
 super + shift + slash
 	~/Documents/scripts/sxkd_help
+
+super + t
+	~/Documents/scripts/timetable.sh
 
 # access bookmark
 super + u
@@ -58,7 +61,8 @@ super + alt + {equal,minus}
 
 # selective screenshot
 @Print
-	~/Documents/scripts/snap.sh
+	flameshot gui
+	# ~/Documents/scripts/snap.sh
 
 # fullscreen screenshot
 Insert
@@ -80,11 +84,19 @@ super + slash
 
 # scratchpad terminal
 super + minus
-	~/Documents/scripts/quickterminal.sh Alacritty
+	~/Documents/scripts/quickterminal.sh quick-term
 
-# workspace preview
-# super + Tab
-	# skippy-xd-runner
+# add window to tab. If the direction contains no tab, it'll make current
+# window as tab
+super + b; {h,j,k,l}
+	tabc add {west,south,north,east} $(bspc query -N -n focused)
+
+# remove window from tab
+super + b; r
+	tabbed=$(bspc query -N -n focused); \
+	child=$(tabc list $tabbed | head -n1); \
+	tabc remove $child
+
 
 #
 # bspwm hotkeys
@@ -145,17 +157,11 @@ super + bracket{left,right}
 	bspc desktop -f {prev,next}.local; \
 	~/Documents/scripts/hide_if_fullscreen.sh
 
-# toggle wswr
+# switches to occupied workspace
 super + Tab
-	~/Documents/scripts/wswr.sh -t
+	bspc desktop -f next.local.occupied; \
+	~/Documents/scripts/hide_if_fullscreen.sh
 
-# update current workspace in wswr
-super + shift + Tab
-	~/Documents/scripts/wswr.sh -u
-
-# full update workspaces
-super + e
-	~/Documents/scripts/wswr.sh -U
 
 # focus the last desktop
 alt + Tab

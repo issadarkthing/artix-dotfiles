@@ -3,18 +3,15 @@ call plug#begin('~/.config/nvim/autoload/plugged')
 " manages quoting/parenthesis
 Plug 'tpope/vim-surround'
 
-" insert mode auto pair
-Plug 'raimondi/delimitmate'
-
 " status bar
 Plug 'vim-airline/vim-airline'
 Plug 'vim-airline/vim-airline-themes'
 
-" syntax highlighting for most language
-Plug 'sheerun/vim-polyglot'
-
 " file explorer
-Plug 'scrooloose/nerdtree', { 'on': 'NERDTreeToggle' }
+Plug 'scrooloose/nerdtree' |
+	\ Plug 'Xuyuanp/nerdtree-git-plugin' |
+	\ Plug 'ryanoasis/vim-devicons' |
+	\ Plug 'tiagofumo/vim-nerdtree-syntax-highlight'
 
 " insert, or delete brackets, parens, quotes in pair
 Plug 'jiangmiao/auto-pairs'
@@ -37,7 +34,7 @@ Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 Plug 'junegunn/fzf.vim'
 
 " nerdtree icons
-Plug 'ryanoasis/vim-devicons', { 'on': 'NERDTreeToggle' }
+" Plug 'ryanoasis/vim-devicons'
 
 " highlight unique character in every word
 Plug 'unblevable/quick-scope'
@@ -70,7 +67,7 @@ Plug 'lervag/vimtex'
 Plug 'dpelle/vim-LanguageTool'
 
 " auto save
-Plug '907th/vim-auto-save'
+" Plug '907th/vim-auto-save'
 
 " go debugger
 Plug 'sebdah/vim-delve'
@@ -83,14 +80,26 @@ Plug 'inkarkat/vim-ReplaceWithRegister'
 Plug 'djoshea/vim-autoread'
 
 " go plugin
-Plug 'fatih/vim-go', { 'do': ':GoUpdateBinaries' }
+Plug 'fatih/vim-go', { 'for': 'go' }
 
 " help to manage alignment
 Plug 'junegunn/vim-easy-align'
 
-" centering
-Plug 'junegunn/goyo.vim'
+" for clojure
+" Plug 'tpope/vim-fireplace'
+Plug 'vim-scripts/paredit.vim'
 
+Plug 'eraserhd/parinfer-rust', {'do':
+        \  'cargo build --release'}
+
+Plug 'elixir-editors/vim-elixir'
+
+" personal colorscheme
+Plug 'issadarkthing/vim-rex'
+
+Plug 'SirVer/ultisnips'
+
+Plug 'tweekmonster/startuptime.vim'
 
 call plug#end()
 
@@ -98,7 +107,7 @@ call plug#end()
 set tabstop=4
 set softtabstop=4
 set shiftwidth=4
-set number relativenumber
+set number
 
 " remap esc key as jk
 inoremap jk <esc>
@@ -109,27 +118,19 @@ filetype plugin indent on
 
 
 " colorscheme stuff
-colorscheme gotham
-let g:airline_theme = 'gotham256'
+colorscheme rex
+let g:airline_theme = 'rex'
 " enable pointed arrow
 let g:airline_powerline_fonts = 1
-let g:airline#extensions#tabline#enabled = 1
-
-
 
 " enables mouse
 set mouse+=a
-
-" wrap lines
-set wrap
-
 
 " toggle color
 noremap <leader>co :ColorToggle<cr>
 
 " source vimrc
 noremap <leader>v :so ~/.config/nvim/init.vim<cr>
-
 
 " disable highlight search permanently
 set nohlsearch
@@ -146,13 +147,22 @@ augroup personal_preference
 	" automatic shebang insertion
 	autocmd BufNewFile *.sh 0put = '#!/bin/bash'
 
-	" opens nerdtree automatically when open in directory
-	autocmd StdinReadPre * let s:std_in=1
-	autocmd VimEnter * if argc() == 1 && isdirectory(argv()[0]) && !exists("s:std_in") | exe 'NERDTree' argv()[0] | wincmd p | ene | exe 'cd '.argv()[0] | endif
-
 	" open vimwiki when no file specified
-	autocmd VimEnter * if argc() == 0 | execute 'VimwikiIndex' | endif
+	" autocmd VimEnter * if argc() == 0 | execute 'VimwikiIndex' | endif
 
+	" disable auto pair for lisp and clojure files
+	autocmd FileType lisp,clojure let b:autopairs_loaded=1 
+
+	" autocmd FileType lisp execute 'set ft=clojure'
+	" autocmd BufRead *.clj FireplaceConnect nrepl://localhost:1667 %
+
+	" use clojure syntax for spirit lang
+	autocmd BufNewFile,BufRead *.st set filetype=clojure | let b:autopairs_enabled=0
+
+	" disable auto save on vim wiki
+	autocmd BufEnter *.wiki let b:auto_save = 0
+	
+	autocmd BufEnter *.txt call GrammarMappings()
 augroup END
 
 
@@ -244,6 +254,8 @@ tnoremap <expr> <Esc> (&filetype == "fzf") ? "<Esc>" : "<c-\><c-n>"
 
 " map ripgrep
 nnoremap <leader>rg :Rg<CR>
+
+nnoremap q: :q<CR>
 
 " Trigger a highlight in the appropriate direction when pressing these keys:
 let g:qs_highlight_on_keys = ['f', 'F', 't', 'T']
@@ -348,6 +360,9 @@ noremap <silent> <A-w> :b#<CR>
 " switch between buffer without saving
 set hidden
 
+" remove wrap
+set nowrap
+
 " delete a function if opening brace is on the same line as function name
 nnoremap <leader>df Vf{%d
 
@@ -429,10 +444,13 @@ nmap <silent> <leader>gy <Plug>(coc-type-definition)
 nmap <silent> <leader>gi <Plug>(coc-implementation)
 nmap <silent> <leader>gr <Plug>(coc-references)
 
-" Use K to show documentation in preview window.
-nmap <silent> K :call <SID>show_documentation()<CR>
 
-function! s:show_documentation()
+" Use K to show documentation in preview window
+" nmap <silent> K :call <SID>show_documentation()<CR>
+
+nmap <silent> K :call timer_start(0, "<SID>show_documentation")<CR>
+
+function! s:show_documentation(x)
   if (index(['vim','help'], &filetype) >= 0)
     execute 'h '.expand('<cword>')
   else
@@ -556,11 +574,12 @@ let g:go_highlight_diagnostic_warnings = 1
 let g:go_highlight_fields              = 1
 
 
-let g:go_code_completion_enabled = 0
-let g:go_imports_autosave        = 0
-let g:go_fmt_autosave            = 0
-let g:go_doc_popup_window        = 0
-let g:go_gopls_enabled           = 0
+let g:go_highlight_diagnostic_errors = 0
+let g:go_code_completion_enabled     = 0
+let g:go_imports_autosave            = 0
+let g:go_fmt_autosave                = 0
+let g:go_doc_popup_window            = 0
+let g:go_gopls_enabled               = 1
 
 
 " Start interactive EasyAlign in visual mode (e.g. vipga)
@@ -569,3 +588,45 @@ xmap ga <Plug>(EasyAlign)
 " Start interactive EasyAlign for a motion/text object (e.g. gaip)
 nmap ga <Plug>(EasyAlign)
 
+
+let g:asmsyntax = 'nasm'
+
+nnoremap <leader>ep :e ~/Documents/scripts/prelude.clj<cr>
+nnoremap <leader>bb :Buffers<cr>
+nnoremap <M-`> <C-^>
+nnoremap n nzzzv
+nnoremap N Nzzzv
+nnoremap m :w<cr>
+
+let g:NERDTreeGitStatusIndicatorMapCustom = {
+                \ 'Modified'  :'•',
+                \ 'Staged'    :'+',
+                \ 'Untracked' :'*',
+                \ 'Renamed'   :'➜',
+                \ 'Unmerged'  :'═',
+                \ 'Deleted'   :'✖',
+                \ 'Dirty'     :'•',
+                \ 'Ignored'   :'☒',
+                \ 'Clean'     :'✔︎',
+                \ 'Unknown'   :'?',
+                \ }
+
+let g:UltiSnipsExpandTrigger="<c-j>"
+let g:UltiSnipsJumpForwardTrigger="<c-b>"
+let g:UltiSnipsJumpBackwardTrigger="<c-z>"
+
+
+function! GrammarMappings()
+	nmap <buffer> <leader>, <Plug>(grammarous-fixit)
+	nmap <buffer> <leader>n <Plug>(grammarous-move-to-next-error)
+	nmap <buffer> <leader>p <Plug>(grammarous-move-to-previous-error)
+	" Disable the grammar rule under the cursor
+	nmap <buffer> <leader>d <Plug>(grammarous-remove-error)
+	nmap <buffer> <leader>r <Plug>(grammarous-reset)
+	nmap <buffer> <leader>a <Plug>(grammarous-fixall)
+	nmap <buffer> <leader>q <Plug>(grammarous-close-info-window)
+	nmap <buffer> <leader>i <Plug>(grammarous-open-info-window)
+endfunction
+
+set cursorline
+hi CursorLine ctermfg=NONE ctermbg=234
