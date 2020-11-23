@@ -9,7 +9,6 @@ Plug 'vim-airline/vim-airline-themes'
 
 " file explorer
 Plug 'scrooloose/nerdtree' |
-	\ Plug 'Xuyuanp/nerdtree-git-plugin' |
 	\ Plug 'ryanoasis/vim-devicons' |
 	\ Plug 'tiagofumo/vim-nerdtree-syntax-highlight'
 
@@ -70,7 +69,7 @@ Plug 'dpelle/vim-LanguageTool'
 " Plug '907th/vim-auto-save'
 
 " go debugger
-Plug 'sebdah/vim-delve'
+Plug 'sebdah/vim-delve', { 'for': 'go' }
 
 " replace a existing text from the register
 Plug 'inkarkat/vim-ReplaceWithRegister' 
@@ -87,12 +86,13 @@ Plug 'junegunn/vim-easy-align'
 
 " for clojure
 " Plug 'tpope/vim-fireplace'
-Plug 'vim-scripts/paredit.vim'
+Plug 'vim-scripts/paredit.vim', { 'for': 'clojure' }
 
-Plug 'eraserhd/parinfer-rust', {'do':
-        \  'cargo build --release'}
+Plug 'eraserhd/parinfer-rust', {
+			\ 'do': 'cargo build --release',
+			\ 'for': 'clojure'}
 
-Plug 'elixir-editors/vim-elixir'
+Plug 'elixir-editors/vim-elixir', { 'for': 'elixir' }
 
 " personal colorscheme
 Plug 'issadarkthing/vim-rex'
@@ -100,6 +100,8 @@ Plug 'issadarkthing/vim-rex'
 Plug 'SirVer/ultisnips'
 
 Plug 'tweekmonster/startuptime.vim'
+
+" Plug 'sheerun/vim-polyglot', { 'for': 'typescript' }
 
 call plug#end()
 
@@ -540,7 +542,7 @@ highlight VimwikiHeader5 ctermfg=28
 highlight VimwikiHeader6 ctermfg=130
 
 " enable AutoSave on Vim startup
-let g:auto_save = 1
+" let g:auto_save = 1
 
 " do not display the auto-save notification
 let g:auto_save_silent = 1
@@ -628,5 +630,11 @@ function! GrammarMappings()
 	nmap <buffer> <leader>i <Plug>(grammarous-open-info-window)
 endfunction
 
-set cursorline
-hi CursorLine ctermfg=NONE ctermbg=234
+" set cursorline
+" hi CursorLine ctermfg=NONE ctermbg=234
+set scrolloff=10
+
+function! ReplaceTabWithSpace()
+    set tabstop=4 shiftwidth=4 expandtab
+endfunction
+
