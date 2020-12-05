@@ -86,6 +86,15 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     -- get password
     , ((modm, xK_p), spawn $ scripts ++ "getpass.sh")
 
+	-- open bookmark
+	, ((modm, xK_u), spawn $ scripts ++ "bookmark/bookmark.sh")
+
+	-- add bookmark
+	, ((modm .|. shiftMask, xK_u), spawn $ scripts ++ "bookmark/bookmark.sh -p")
+
+	-- get infos
+	, ((modm, xK_i), spawn "/home/terra/.local/share/basic_info.sh")
+
     -- close focused window
     , ((modm .|. shiftMask, xK_q), kill)
 
@@ -277,18 +286,19 @@ myLogHook = return ()
 -- Perform an arbitrary action each time xmonad starts or is restarted
 -- with mod-q.  Used by, e.g., XMonad.Layout.PerWorkspace to initialize
 -- per-workspace layout choices.
---
+
 -- By default, do nothing.
 myStartupHook = do
 	spawnOnce "picom -b &"
-	spawnOnce "feh --bg-scale ~/Pictures/watchdog.png &"
+	spawnOnce "xmodmap ~/.Xmodmap &"
+	spawnOnce "feh --bg-scale ~/Pictures/haskell-background.jpg &"
 	spawnOnce "mkfifo /tmp/xobpipe; tail -f /tmp/xobpipe | xob -t 4000 &"
 	spawnOnce "flameshot &>/dev/null &"
 	spawnOnce $ scripts ++ "battery_low_warn &"
 	spawnOnce "xsetroot -cursor_name left_ptr &"
-	spawnOn "5" "thunderbird"
-	spawnOn "4" "discord"
-	spawnOn "1" "firefox"
+	spawnOn "5" "pgrep thunderbird || thunderbird"
+	spawnOn "4" "pgrep Discord || discord"
+	spawnOn "1" "pgrep firefox || firefox"
 
 ------------------------------------------------------------------------
 -- Now run xmonad with all the defaults we set up.

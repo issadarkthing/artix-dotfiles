@@ -97,11 +97,15 @@ Plug 'elixir-editors/vim-elixir', { 'for': 'elixir' }
 " personal colorscheme
 Plug 'issadarkthing/vim-rex'
 
-Plug 'SirVer/ultisnips'
+" Plug 'SirVer/ultisnips'
 
 Plug 'tweekmonster/startuptime.vim'
 
 " Plug 'sheerun/vim-polyglot', { 'for': 'typescript' }
+
+Plug 'antoinemadec/FixCursorHold.nvim'
+
+Plug 'airblade/vim-gitgutter'
 
 call plug#end()
 
@@ -113,6 +117,7 @@ set number
 
 " remap esc key as jk
 inoremap jk <esc>
+inoremap JK <esc>
 " inoremap <esc> <NOP>
 
 let mapleader = ","
@@ -165,6 +170,9 @@ augroup personal_preference
 	autocmd BufEnter *.wiki let b:auto_save = 0
 	
 	autocmd BufEnter *.txt call GrammarMappings()
+
+	" add wrapping for latex file
+	autocmd FileType tex setlocal wrap
 augroup END
 
 
@@ -636,5 +644,12 @@ set scrolloff=10
 
 function! ReplaceTabWithSpace()
     set tabstop=4 shiftwidth=4 expandtab
+    retab
 endfunction
 
+nnoremap <leader>ww :VimwikiIndex<CR>
+
+highlight GitGutterAdd ctermbg=black
+highlight GitGutterChange ctermbg=black
+highlight GitGutterDelete ctermbg=black
+highlight GitGutterChangeDelete ctermbg=black
