@@ -81,19 +81,19 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     -- launch dmenu
     , ((modm, xK_d), spawn "dmenu_run")
 
-	, ((modm, xK_t), spawn $ scripts ++ "timetable.sh")
+    , ((modm, xK_t), spawn $ scripts ++ "timetable.sh")
 
     -- get password
     , ((modm, xK_p), spawn $ scripts ++ "getpass.sh")
 
-	-- open bookmark
-	, ((modm, xK_u), spawn $ scripts ++ "bookmark/bookmark.sh")
+    -- open bookmark
+    , ((modm, xK_u), spawn $ scripts ++ "bookmark/bookmark")
 
-	-- add bookmark
-	, ((modm .|. shiftMask, xK_u), spawn $ scripts ++ "bookmark/bookmark.sh -p")
+    -- add bookmark
+    , ((modm .|. shiftMask, xK_u), spawn $ scripts ++ "bookmark/bookmark -p")
 
-	-- get infos
-	, ((modm, xK_i), spawn "/home/terra/.local/share/basic_info.sh")
+    -- get infos
+    , ((modm, xK_i), spawn "/home/terra/.local/share/basic_info.sh")
 
     -- close focused window
     , ((modm .|. shiftMask, xK_q), kill)
@@ -119,21 +119,21 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     -- Move focus to the master window
     , ((modm, xK_m), windows W.focusMaster)
 
-	-- Control brightness
-	, ((0,  xK_F2), spawn $ scripts ++ "bright.sh - 5")
-	, ((0,  xK_F3), spawn $ scripts ++ "bright.sh + 5")
+    -- Control brightness
+    , ((0,  xK_F2), spawn $ scripts ++ "bright.sh - 5")
+    , ((0,  xK_F3), spawn $ scripts ++ "bright.sh + 5")
 
-	-- Control volume
-	, ((0,  xF86XK_AudioRaiseVolume), spawn $ scripts ++ "volume.sh +")
-	, ((0,  xF86XK_AudioLowerVolume), spawn $ scripts ++ "volume.sh -")
-	, ((0,  xF86XK_AudioMute       ), spawn $ scripts ++ "volume.sh mute")
+    -- Control volume
+    , ((0,  xF86XK_AudioRaiseVolume), spawn $ scripts ++ "volume.sh +")
+    , ((0,  xF86XK_AudioLowerVolume), spawn $ scripts ++ "volume.sh -")
+    , ((0,  xF86XK_AudioMute       ), spawn $ scripts ++ "volume.sh mute")
 
-	-- screenshot utility
-	, ((0,  xK_Print), spawn "flameshot gui")
+    -- screenshot utility
+    , ((0,  xK_Print), spawn "flameshot gui")
 
     -- Swap the focused window and the master window
     -- , ((modm,               xK_Return), windows W.swapMaster)
-	
+    
 
     -- Swap the focused window with the next window
     , ((modm .|. shiftMask, xK_j), windows W.swapDown)
@@ -253,12 +253,12 @@ myManageHook = composeAll
     , className =? "Gimp"           --> doFloat
     , resource  =? "desktop_window" --> doIgnore
     , resource  =? "kdesktop"       --> doIgnore 
-	, isFullscreen                  --> doFullFloat
-	, isDialog                      --> doCenterFloat
-	, className =? "Sxiv"           --> doCenterFloat
-	, className =? "discord"        --> doShift "4"
-	, className =? "Yad"            --> doFloat
-	]
+    , isFullscreen                  --> doFullFloat
+    , isDialog                      --> doCenterFloat
+    , className =? "Sxiv"           --> doCenterFloat
+    , className =? "discord"        --> doShift "4"
+    , className =? "Yad"            --> doFloat
+    ]
 
 
 ------------------------------------------------------------------------
@@ -289,16 +289,17 @@ myLogHook = return ()
 
 -- By default, do nothing.
 myStartupHook = do
-	spawnOnce "picom -b &"
-	spawnOnce "xmodmap ~/.Xmodmap &"
-	spawnOnce "feh --bg-scale ~/Pictures/haskell-background.jpg &"
-	spawnOnce "mkfifo /tmp/xobpipe; tail -f /tmp/xobpipe | xob -t 4000 &"
-	spawnOnce "flameshot &>/dev/null &"
-	spawnOnce $ scripts ++ "battery_low_warn &"
-	spawnOnce "xsetroot -cursor_name left_ptr &"
-	spawnOn "5" "pgrep thunderbird || thunderbird"
-	spawnOn "4" "pgrep Discord || discord"
-	spawnOn "1" "pgrep firefox || firefox"
+    spawnOnce "picom -b &"
+    spawnOnce "xmodmap ~/.Xmodmap &"
+    spawnOnce "feh --bg-scale ~/Pictures/big-sur-blue.png &"
+    spawnOnce "mkfifo /tmp/xobpipe; tail -f /tmp/xobpipe | xob -t 4000 &"
+    spawnOnce "flameshot &>/dev/null &"
+    spawnOnce "dmenu_path &"
+    spawnOnce $ scripts ++ "battery_low_warn &"
+    spawnOnce "xsetroot -cursor_name left_ptr &"
+    spawnOn "5" "pgrep thunderbird || thunderbird"
+    spawnOn "4" "pgrep Discord || discord"
+    spawnOn "1" "pgrep firefox || firefox"
 
 ------------------------------------------------------------------------
 -- Now run xmonad with all the defaults we set up.
@@ -306,8 +307,8 @@ myStartupHook = do
 -- Run xmonad with the settings you specify. No need to modify this.
 --
 main = do
-	xmproc <- spawnPipe "~/.config/polybar/launch.sh"
-	xmonad $ (docks . ewmh) $ defaults
+    xmproc <- spawnPipe "~/.config/polybar/launch.sh"
+    xmonad $ (docks . ewmh) $ defaults
 
 -- A structure containing your configuration settings, overriding
 -- fields in the default config. Any you don't override, will

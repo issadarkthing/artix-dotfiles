@@ -1,3 +1,5 @@
+
+" plugins
 call plug#begin('~/.config/nvim/autoload/plugged')
 
 " manages quoting/parenthesis
@@ -6,11 +8,6 @@ Plug 'tpope/vim-surround'
 " status bar
 Plug 'vim-airline/vim-airline'
 Plug 'vim-airline/vim-airline-themes'
-
-" file explorer
-Plug 'scrooloose/nerdtree' |
-	\ Plug 'ryanoasis/vim-devicons' |
-	\ Plug 'tiagofumo/vim-nerdtree-syntax-highlight'
 
 " insert, or delete brackets, parens, quotes in pair
 Plug 'jiangmiao/auto-pairs'
@@ -21,9 +18,6 @@ Plug 'tpope/vim-commentary'
 " color highlight
 Plug 'chrisbra/colorizer', { 'on': 'ColorHighlight' }
 
-" colorscheme
-Plug 'whatyouhide/vim-gotham'
-
 " Vim sugar for the UNIX shell commands that need it the most
 " example: :Delete, :Move, :Rename, :Mkdir etc
 Plug 'tpope/vim-eunuch'
@@ -31,9 +25,6 @@ Plug 'tpope/vim-eunuch'
 " fuzzyfind stuff
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 Plug 'junegunn/fzf.vim'
-
-" nerdtree icons
-" Plug 'ryanoasis/vim-devicons'
 
 " highlight unique character in every word
 Plug 'unblevable/quick-scope'
@@ -48,7 +39,7 @@ Plug 'jamessan/vim-gnupg'
 Plug 'wellle/targets.vim'
 
 " better TS prettier
-Plug 'prettier/vim-prettier', { 'do': 'yarn install' }
+Plug 'prettier/vim-prettier', { 'do': 'yarn install', 'for': 'typescript' }
 
 " reorder delimited items
 Plug 'machakann/vim-swap'
@@ -60,13 +51,10 @@ Plug 'rhysd/vim-grammarous'
 Plug 'neoclide/coc.nvim', { 'branch': 'release' }
 
 " vim latex
-Plug 'lervag/vimtex'
+Plug 'lervag/vimtex', { 'for': 'latex' }
 
 " grammar check as well
 Plug 'dpelle/vim-LanguageTool'
-
-" auto save
-" Plug '907th/vim-auto-save'
 
 " go debugger
 Plug 'sebdah/vim-delve', { 'for': 'go' }
@@ -92,56 +80,84 @@ Plug 'eraserhd/parinfer-rust', {
 			\ 'do': 'cargo build --release',
 			\ 'for': 'clojure'}
 
-Plug 'elixir-editors/vim-elixir', { 'for': 'elixir' }
 
 " personal colorscheme
 Plug 'issadarkthing/vim-rex'
 
-" Plug 'SirVer/ultisnips'
-
+" benchmarking startup time
 Plug 'tweekmonster/startuptime.vim'
-
-" Plug 'sheerun/vim-polyglot', { 'for': 'typescript' }
 
 Plug 'antoinemadec/FixCursorHold.nvim'
 
+" show git marks
 Plug 'airblade/vim-gitgutter'
+
+" cool markdown preview
+Plug 'iamcco/markdown-preview.nvim', { 'do': 'cd app && yarn install'  }
+
+" haskell syntax highlighting
+Plug 'neovimhaskell/haskell-vim', { 'for': 'haskell' }
+
+" additional cpp syntax highlighting
+Plug 'octol/vim-cpp-enhanced-highlight'
+
+" crystal language syntax highlighting
+Plug 'vim-crystal/vim-crystal'
+
+" add readline keybinding in command
+Plug 'ryvnf/readline.vim'
+
+Plug 'gi1242/vim-tex-autoclose'
+
+" better typescript highlighting
+Plug 'leafgarland/typescript-vim'
+
+" comments in json file
+Plug 'neoclide/jsonc.vim'
 
 call plug#end()
 
-
+" options
 set tabstop=4
 set softtabstop=4
 set shiftwidth=4
 set number
-
-" remap esc key as jk
-inoremap jk <esc>
-inoremap JK <esc>
-" inoremap <esc> <NOP>
-
-let mapleader = ","
-filetype plugin indent on
-
-
-" colorscheme stuff
-colorscheme rex
-let g:airline_theme = 'rex'
-" enable pointed arrow
-let g:airline_powerline_fonts = 1
-
 " enables mouse
 set mouse+=a
-
-" toggle color
-noremap <leader>co :ColorToggle<cr>
-
-" source vimrc
-noremap <leader>v :so ~/.config/nvim/init.vim<cr>
-
 " disable highlight search permanently
 set nohlsearch
+" autocompletion
+set wildmenu
+set wildmode=longest:full,full
+" persistent undo history in one directory
+set undodir=~/.vim/undodir
+set undofile
+" Use case insensitive search, except when using capital letters
+set smartcase
+" Horizontal splits will automatically be below
+set splitbelow
+" Vertical splits will automatically be to the right
+set splitright
+" makes popup menu smaller
+set pumheight=10
+set scrolloff=10
+set textwidth=80
+" switch between buffer without saving
+set hidden
+" remove wrap
+set nowrap
+" Don't pass messages to |ins-completion-menu|.
+set shortmess=aFc
+" Having longer updatetime (default is 4000 ms = 4 s) leads to noticeable
+" delays and poor user experience.
+set updatetime=300
+" time out on mapping after three seconds, time out on key codes after a tenth of a second
+set timeout timeoutlen=3000 ttimeoutlen=100
+set colorcolumn=81
+set formatoptions+=t
+set spelllang=en_gb
 
+" auto commands
 " group commands together to prevent calling autocmd whenever file is reloaded
 augroup personal_preference
 	autocmd!
@@ -164,26 +180,51 @@ augroup personal_preference
 	" autocmd BufRead *.clj FireplaceConnect nrepl://localhost:1667 %
 
 	" use clojure syntax for spirit lang
-	autocmd BufNewFile,BufRead *.st set filetype=clojure | let b:autopairs_enabled=0
+	autocmd BufNewFile,BufRead *.st setlocal filetype=clojure | let b:autopairs_enabled=0
 
 	" disable auto save on vim wiki
 	autocmd BufEnter *.wiki let b:auto_save = 0
-	
 	autocmd BufEnter *.txt call GrammarMappings()
 
-	" add wrapping for latex file
-	autocmd FileType tex setlocal wrap
+	" auto format characters to textwidth limit
+	" autocmd FileType tex setlocal formatoptions+=t
+
+    " use spaces instead of tab for haskell
+    autocmd FileType haskell call ReplaceTabWithSpace()
+
+	" prevents from creating swapfiles in this dir
+	autocmd BufNewFile,BufRead /dev/shm/gopass.* setlocal noswapfile nobackup noundofile
+
+	autocmd FileType tex call LatexConfig() | call GrammarMappings()
+
+	" allow comments in tsconfig
+	autocmd BufRead,BufNewFile tsconfig.json set filetype=jsonc
+
 augroup END
 
+" the most important keybinding for me
+" remap esc key as jk
+inoremap jk <esc>
+inoremap JK <esc>
 
-" autocompletion
-set wildmenu
-set wildmode=longest:full,full
+let mapleader = ","
+filetype plugin indent on
+
+
+" colorscheme stuff
+colorscheme rex
+let g:airline_theme = 'rex'
+
+" enable pointed arrow
+let g:airline_powerline_fonts = 1
+
+
+
+" source vimrc
+noremap <leader>v :so ~/.config/nvim/init.vim<cr>
 
 " semicolon macro
 let @s="A;jk"
-
-
 
 " rename file inside vim
 function! RenameFile()
@@ -197,28 +238,6 @@ function! RenameFile()
 endfunction
 
 noremap <leader>n :call RenameFile()<cr>
-
-
-" toggle nerd tree
-noremap <silent> <C-n> :NERDTreeToggle<CR>
-
-" remap open keybinding in NERDTree
-let NERDTreeMapCustomOpen='l'
-
-" remap close dir keybinding in NERDTree
-let NERDTreeMapCloseDir='h'
-
-
-" prevents from creating swapfiles in this dir
-au BufNewFile,BufRead /dev/shm/gopass.* setlocal noswapfile nobackup noundofile
-
-" persistent undo history in one directory
-set undodir=~/.vim/undodir
-set undofile
-
-" jedi only used for rename in python which YCM doesn't work in python
-let g:jedi#completions_enabled = 0
-
 
 " Customize fzf colors to match your color scheme
 let g:fzf_colors =
@@ -310,8 +329,6 @@ nnoremap <leader>F :GFiles<cr>
 "highlight  CursorLine ctermbg=4 ctermfg=NONE
 
 
-" Use case insensitive search, except when using capital letters
-set ignorecase
 
 " Map Y to act like D and C, i.e. to yank until EOL, rather than act as yy,
 " which is the default
@@ -326,17 +343,6 @@ nnoremap <leader>gh :Files ~<cr>
 " find in history
 nnoremap <leader>gH :History<cr>
 
-" treat dash separated words as a word text object"
-set iskeyword+=-
-
-" Horizontal splits will automatically be below
-set splitbelow
-
-" Vertical splits will automatically be to the right
-set splitright
-
-" makes popup menu smaller
-set pumheight=10
 
 
 " opens help window vertically
@@ -367,11 +373,6 @@ noremap <silent> <C-h> :bprevious<CR>
 noremap <silent> <A-w> :b#<CR>
 
 
-" switch between buffer without saving
-set hidden
-
-" remove wrap
-set nowrap
 
 " delete a function if opening brace is on the same line as function name
 nnoremap <leader>df Vf{%d
@@ -401,12 +402,6 @@ endfun
 " fuzzy line search
 nnoremap <leader>l :Lines<cr>
 
-" Don't pass messages to |ins-completion-menu|.
-set shortmess=aFc
-
-" Having longer updatetime (default is 4000 ms = 4 s) leads to noticeable
-" delays and poor user experience.
-set updatetime=300
 
 " Use `[g` and `]g` to navigate diagnostics
 nmap <silent> [g <Plug>(coc-diagnostic-prev)
@@ -517,14 +512,29 @@ inoremap <expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
 nmap <leader>gmf <Plug>(grammarous-fixit)
 nmap <leader>gmn <Plug>(grammarous-move-to-next-error)
 
-let g:languagetool_jar = '/home/terra/Documents/repos/languagetool/languagetool-standalone/target/LanguageTool-5.0-SNAPSHOT/LanguageTool-5.0-SNAPSHOT/languagetool-commandline.jar'
+let g:languagetool_jar ='/home/terra/Documents/repos/languagetool/
+			\ languagetool-standalone/target/LanguageTool-5.0-SNAPSHOT/
+			\ LanguageTool-5.0-SNAPSHOT/languagetool-commandline.jar'
+
+let g:vimtex_grammar_vlty = { 'lt_command': 'languagetool'}
 let g:languagetool_lang = 'en-GB'
 
+
 " Enable all categories
-let g:languagetool_enable_categories = 'PUNCTUATION,TYPOGRAPHY,CASING,COLLOCATIONS,CONFUSED_WORDS,CREATIVE_WRITING,GRAMMAR,MISC,MISUSED_TERMS_EU_PUBLICATIONS,NONSTANDARD_PHRASES,PLAIN_ENGLISH,TYPOS,REDUNDANCY,SEMANTICS,TEXT_ANALYSIS,STYLE,GENDER_NEUTRALITY'
+let g:languagetool_enable_categories = 'PUNCTUATION,TYPOGRAPHY,CASING, 
+			\ COLLOCATIONS,CONFUSED_WORDS,CREATIVE_WRITING,GRAMMAR,MISC,
+			\ MISUSED_TERMS_EU_PUBLICATIONS,NONSTANDARD_PHRASES,PLAIN_ENGLISH,
+			\ TYPOS,REDUNDANCY,SEMANTICS,TEXT_ANALYSIS,STYLE,GENDER_NEUTRALITY'
 
 " Enable all special rules that cannot be enabled via category
-let g:languagetool_enable_rules = 'AND_ALSO,ARE_ABLE_TO,ARTICLE_MISSING,AS_FAR_AS_X_IS_CONCERNED,BEST_EVER,BLEND_TOGETHER,BRIEF_MOMENT,CAN_NOT,CANT_HELP_BUT,COMMA_WHICH,EG_NO_COMMA,ELLIPSIS,EXACT_SAME,HONEST_TRUTH,HOPEFULLY,IE_NO_COMMA,IN_ORDER_TO,I_VE_A,NEGATE_MEANING,PASSIVE_VOICE,PLAN_ENGLISH,REASON_WHY,SENT_START_NUM,SERIAL_COMMA_OFF,SERIAL_COMMA_ON,SMARTPHONE,THREE_NN,TIRED_INTENSIFIERS,ULESLESS_THAT,WIKIPEDIA,WORLD_AROUND_IT'
+let g:languagetool_enable_rules = 'AND_ALSO,ARE_ABLE_TO,ARTICLE_MISSING,
+			\ AS_FAR_AS_X_IS_CONCERNED,BEST_EVER,BLEND_TOGETHER,BRIEF_MOMENT,
+			\ CAN_NOT,CANT_HELP_BUT,COMMA_WHICH,EG_NO_COMMA,ELLIPSIS,
+			\ EXACT_SAME,HONEST_TRUTH,HOPEFULLY,IE_NO_COMMA,IN_ORDER_TO,I_VE_A,
+			\ NEGATE_MEANING,PASSIVE_VOICE,PLAN_ENGLISH,REASON_WHY,
+			\ SENT_START_NUM,SERIAL_COMMA_OFF,SERIAL_COMMA_ON,SMARTPHONE,
+			\ THREE_NN,TIRED_INTENSIFIERS,ULESLESS_THAT,
+			\ WIKIPEDIA,WORLD_AROUND_IT'
 
 
 nnoremap <a-Left>  :vert resize +5<cr>
@@ -549,22 +559,14 @@ highlight VimwikiHeader4 ctermfg=6
 highlight VimwikiHeader5 ctermfg=28
 highlight VimwikiHeader6 ctermfg=130
 
-" enable AutoSave on Vim startup
-" let g:auto_save = 1
-
-" do not display the auto-save notification
-let g:auto_save_silent = 1
 
 " makes formatted block prettier
 let g:vimwiki_conceal_pre = 1
 
-" time out on mapping after three seconds, time out on key codes after a tenth of a second
-set timeout timeoutlen=3000 ttimeoutlen=100
 
 " set current highlited on the correct window
 nnoremap <c-w>v <c-w>v<c-w>h
 
-set colorcolumn=80
 
 " -------------- vim-go config ---------
 " disable vim-go doc
@@ -608,22 +610,6 @@ nnoremap n nzzzv
 nnoremap N Nzzzv
 nnoremap m :w<cr>
 
-let g:NERDTreeGitStatusIndicatorMapCustom = {
-                \ 'Modified'  :'•',
-                \ 'Staged'    :'+',
-                \ 'Untracked' :'*',
-                \ 'Renamed'   :'➜',
-                \ 'Unmerged'  :'═',
-                \ 'Deleted'   :'✖',
-                \ 'Dirty'     :'•',
-                \ 'Ignored'   :'☒',
-                \ 'Clean'     :'✔︎',
-                \ 'Unknown'   :'?',
-                \ }
-
-let g:UltiSnipsExpandTrigger="<c-j>"
-let g:UltiSnipsJumpForwardTrigger="<c-b>"
-let g:UltiSnipsJumpBackwardTrigger="<c-z>"
 
 
 function! GrammarMappings()
@@ -636,20 +622,89 @@ function! GrammarMappings()
 	nmap <buffer> <leader>a <Plug>(grammarous-fixall)
 	nmap <buffer> <leader>q <Plug>(grammarous-close-info-window)
 	nmap <buffer> <leader>i <Plug>(grammarous-open-info-window)
+	nnoremap <buffer> <leader>c vip:GrammarousCheck<cr>
 endfunction
 
-" set cursorline
-" hi CursorLine ctermfg=NONE ctermbg=234
-set scrolloff=10
+
+
 
 function! ReplaceTabWithSpace()
     set tabstop=4 shiftwidth=4 expandtab
     retab
 endfunction
 
+command! ReplaceTab call ReplaceTabWithSpace()
+
 nnoremap <leader>ww :VimwikiIndex<CR>
 
-highlight GitGutterAdd ctermbg=black
-highlight GitGutterChange ctermbg=black
-highlight GitGutterDelete ctermbg=black
-highlight GitGutterChangeDelete ctermbg=black
+function! GetColor(name)
+	let l:temp = 'highlight ' . a:name
+	let l:output = substitute(execute(l:temp), "\\n", "", "")
+	let l:output = 'highlight ' . substitute(l:output, 'xxx', "", "")
+	redir => m | silent echo l:output | redir END | put=m
+endfunction
+
+command! -nargs=1 -complete=highlight GetColor call GetColor('<args>')
+
+let s:term_window = -1
+let s:term_buffer = -1
+let s:term_job_id = -1
+
+function! TerminalOpen()
+  " Check if buffer exists, if not create a window and a buffer
+  if !bufexists(s:term_buffer)
+    " Creates a window call monkey_terminal
+    new local_terminal
+
+	" disable line numbers
+	setlocal nonumber norelativenumber
+    " Moves to the window the right the current one
+    " wincmd L
+    let s:term_job_id = termopen($SHELL, { 'detach': 1 })
+
+     " Change the name of the buffer to "Terminal 1"
+     silent file Terminal\ 1
+     " Gets the id of the terminal window
+     let s:term_window = win_getid()
+     let s:term_buffer = bufnr('%')
+
+    " The buffer of the terminal won't appear in the list of the buffers
+    " when calling :buffers command
+    set nobuflisted
+  else
+    if !win_gotoid(s:term_window)
+    split
+    " Moves to the window below the current one
+    " wincmd L   
+    buffer Terminal\ 1
+     " Gets the id of the terminal window
+     let s:term_window = win_getid()
+    endif
+  endif
+  " be in insert mode immediately
+  startinsert
+endfunction
+
+function! TerminalToggle()
+  if win_gotoid(s:term_window)
+	hide
+  else
+    call TerminalOpen()
+  endif
+endfunction
+
+" toggle terminal window
+nnoremap <silent> <C-z> :call TerminalToggle()<cr>
+tnoremap <silent> <C-z> <C-\><C-n>:call TerminalToggle()<cr>
+
+function! LatexConfig()
+	highlight SpellBad ctermfg=1 ctermbg=NONE cterm=underline,bold
+	highlight SpellCap cterm=underline
+	set thesaurus+=~/.config/nvim/thesaurus/mthesaur.txt
+	set dictionary+=~/.config/nvim/thesaurus/mthesaur.txt
+	set complete+=s
+	let localleader='\'
+endfunction
+
+" open netrw
+nnoremap <C-N> :Ex<cr>
