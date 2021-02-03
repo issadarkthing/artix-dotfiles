@@ -21,6 +21,7 @@ import XMonad.Hooks.ManageDocks
 import XMonad.Hooks.ManageHelpers
 import XMonad.Hooks.DynamicHooks
 import XMonad.Hooks.EwmhDesktops
+import XMonad.Layout.NoBorders (smartBorders)
 import Graphics.X11.ExtraTypes.XF86
 
 import qualified XMonad.StackSet as W
@@ -60,12 +61,12 @@ altKey          = mod1Mask
 --
 -- > workspaces = ["web", "irc", "code" ] ++ map show [4..9]
 --
-myWorkspaces    = ["1","2","3","4","5","6","7","8","9"]
+myWorkspaces    = map show [1..9] ++ ["0", "11", "12"]
 
 -- Border colors for unfocused and focused windows, respectively.
 --
 myNormalBorderColor  = "#808080"
-myFocusedBorderColor = "#195465"
+myFocusedBorderColor = "#6aceed"
 
 scripts :: String
 scripts = "/home/terra/Documents/scripts/"
@@ -77,6 +78,9 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
 
     -- launch a terminal
     [ ((modm, xK_Return), spawn $ XMonad.terminal conf)
+
+    -- launch tabbed terminal
+    , ((modm .|. shiftMask, xK_Return), spawn "tabbed -c alacritty --embed")
 
     -- launch dmenu
     , ((modm, xK_d), spawn "dmenu_run")
@@ -176,7 +180,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     -- mod-shift-[1..9], Move client to workspace N
     --
     [((m .|. modm, k), windows $ f i)
-        | (i, k) <- zip (XMonad.workspaces conf) [xK_1 .. xK_9]
+        | (i, k) <- zip (XMonad.workspaces conf) ([xK_1 .. xK_9] ++ [xK_0, xK_minus, xK_equal])
         , (f, m) <- [(W.greedyView, 0), (W.shift, shiftMask)]]
     ++
 
@@ -219,10 +223,10 @@ myMouseBindings (XConfig {XMonad.modMask = modm}) = M.fromList $
 -- The available layouts.  Note that each layout is separated by |||,
 -- which denotes layout choice.
 --
-myLayout = avoidStruts $ tiled ||| Full
+myLayout = avoidStruts $ smartBorders $ tiled ||| Full
   where
      -- default tiling algorithm partitions the screen into two panes
-     tiled   = spacing 8 $ Tall nmaster delta ratio
+     tiled   = smartSpacing 8 $ Tall nmaster delta ratio
 
      -- The default number of windows in the master pane
      nmaster = 1
@@ -250,7 +254,6 @@ myLayout = avoidStruts $ tiled ||| Full
 --
 myManageHook = composeAll
     [ className =? "MPlayer"        --> doFloat
-    , className =? "Gimp"           --> doFloat
     , resource  =? "desktop_window" --> doIgnore
     , resource  =? "kdesktop"       --> doIgnore 
     , isFullscreen                  --> doFullFloat
@@ -299,7 +302,8 @@ myStartupHook = do
     spawnOnce "xsetroot -cursor_name left_ptr &"
     spawnOn "5" "pgrep thunderbird || thunderbird"
     spawnOn "4" "pgrep Discord || discord"
-    spawnOn "1" "pgrep firefox || firefox"
+    spawnOn "1" "pgrep librewolf || librewolf"
+    spawnOn "6" "pgrep tutanota || tutanota-desktop"
 
 ------------------------------------------------------------------------
 -- Now run xmonad with all the defaults we set up.

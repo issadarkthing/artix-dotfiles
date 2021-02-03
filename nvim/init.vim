@@ -115,6 +115,16 @@ Plug 'leafgarland/typescript-vim'
 " comments in json file
 Plug 'neoclide/jsonc.vim'
 
+Plug 'vim-pandoc/vim-pandoc'
+Plug 'vim-pandoc/vim-pandoc-syntax'
+Plug 'vim-pandoc/vim-rmarkdown'
+
+Plug 'skywind3000/asyncrun.vim'
+
+Plug 'prettier/vim-prettier'
+
+Plug 'glacambre/firenvim', { 'do': { _ -> firenvim#install(0) } }
+
 call plug#end()
 
 " options
@@ -133,7 +143,7 @@ set wildmode=longest:full,full
 set undodir=~/.vim/undodir
 set undofile
 " Use case insensitive search, except when using capital letters
-set smartcase
+set ignorecase
 " Horizontal splits will automatically be below
 set splitbelow
 " Vertical splits will automatically be to the right
@@ -156,6 +166,9 @@ set timeout timeoutlen=3000 ttimeoutlen=100
 set colorcolumn=81
 set formatoptions+=t
 set spelllang=en_gb
+set relativenumber
+
+set viminfo='10,\"100,:20,%,n~/.config/nvim/viminfo
 
 " auto commands
 " group commands together to prevent calling autocmd whenever file is reloaded
@@ -182,9 +195,7 @@ augroup personal_preference
 	" use clojure syntax for spirit lang
 	autocmd BufNewFile,BufRead *.st setlocal filetype=clojure | let b:autopairs_enabled=0
 
-	" disable auto save on vim wiki
-	autocmd BufEnter *.wiki let b:auto_save = 0
-	autocmd BufEnter *.txt call GrammarMappings()
+	autocmd BufRead,BufNewFile *.txt call GrammarMappings()
 
 	" auto format characters to textwidth limit
 	" autocmd FileType tex setlocal formatoptions+=t
@@ -196,11 +207,36 @@ augroup personal_preference
 	autocmd BufNewFile,BufRead /dev/shm/gopass.* setlocal noswapfile nobackup noundofile
 
 	autocmd FileType tex call LatexConfig() | call GrammarMappings()
+	autocmd BufNewFile,BufRead *.wiki call LatexConfig() | call GrammarMappings()
+	autocmd BufNewFile,BufRead *.Rmd call LatexConfig() | call GrammarMappings()
 
 	" allow comments in tsconfig
 	autocmd BufRead,BufNewFile tsconfig.json set filetype=jsonc
 
+	autocmd BufWritePost *.Rmd call Compile_rmd()
+
+	" restore previos cursor position
+	autocmd BufReadPost * if line("'\"") | execute("normal `\"") | endif
+
+	autocmd FileType typescript call Compile_ts()
+
 augroup END
+
+function! Compile_ts()
+	nnoremap <silent> \ll :CocCommand tsserver.watchBuild<cr>
+endfunction
+
+function! Compile_rmd()
+	let l:file = expand('%')
+	let l:file_name = expand('%:r')
+	let l:compile_cmd = "Rscript -e \"rmarkdown::render('" . file . "', output_file='" . file_name . ".pdf')\""
+	exec ':AsyncRun ' . l:compile_cmd
+endfunction
+
+
+function! Pptmode()
+	autocmd BufWritePost *.md exec "AsyncRun mkppt " . expand("%")
+endfunction
 
 " the most important keybinding for me
 " remap esc key as jk
@@ -546,10 +582,15 @@ let g:tex_flavor = 'latex'
 let g:vimtex_quickfix_open_on_warning = 0
 
 let g:vimwiki_list = [{'path': '~/.local/share/nvim/vimwiki', 
-					\ 'path_html': '~/.local/share/nvim/vimwiki/html',
-					\ 'auto_export': 1}]
+					\ 'path_html': '~/.local/share/nvim/vimwiki/html'}]
 let g:vimwiki_hl_headers = 1
 let g:vimwiki_hl_cb_checked = 1
+
+" remove tab delay
+let g:vimwiki_key_mappings =
+			\ {
+			\ 'table_mappings': 0,
+			\ }
 
 " change vim wiki heading colors
 highlight VimwikiHeader1 ctermfg=3
@@ -698,8 +739,6 @@ nnoremap <silent> <C-z> :call TerminalToggle()<cr>
 tnoremap <silent> <C-z> <C-\><C-n>:call TerminalToggle()<cr>
 
 function! LatexConfig()
-	highlight SpellBad ctermfg=1 ctermbg=NONE cterm=underline,bold
-	highlight SpellCap cterm=underline
 	set thesaurus+=~/.config/nvim/thesaurus/mthesaur.txt
 	set dictionary+=~/.config/nvim/thesaurus/mthesaur.txt
 	set complete+=s
@@ -708,3 +747,25 @@ endfunction
 
 " open netrw
 nnoremap <C-N> :Ex<cr>
+
+let g:pandoc#modules#disabled = ["folding"]
+
+" open pdf file of file
+nnoremap <leader>p :exec ':AsyncRun zathura ' . expand('%:r') . '.pdf &'<cr>
+
+let g:vimtex_compiler_latexmk = {
+			\ 'executable': '/usr/bin/latexmk',
+			\}
+
+let g:vimtex_quickfix_mode = 2
+let g:vimtex_quickfix_ignore_filters = [
+			\'Overfull',
+			\'Underfull',
+			\'LaTeX Warning:',
+			\]
+
+" vim diff syntax highlighting
+highlight DiffDelete ctermfg=black
+highlight DiffAdd ctermfg=black ctermbg=29
+highlight DiffChange ctermfg=black ctermbg=31
+highlight DiffText ctermfg=black ctermbg=190
