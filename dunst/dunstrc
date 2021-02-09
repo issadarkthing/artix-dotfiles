@@ -18,7 +18,7 @@
     # Positive y value is measured from the top of the screen
     geometry = "400x250-50+75"
 
-	frame_width = 2
+	frame_width = 0
 	frame_color = "#599caa"
     color = "#212121"
 	font = Ubuntu Condensed 10
@@ -51,7 +51,7 @@
 	 max_icon_size = 64
 	 corner_radius = 0
 
-    icon_path =  /usr/share/icons/Paper/24x24/status/:/usr/share/icons/Paper/24x24/devices/
+    icon_path =  /usr/share/icons/Adwaita/24x24/status/:/usr/share/icons/Adwaita/24x24/devices/
     startup_notification = false
     dmenu = /usr/bin/dmenu -p dunst:
     browser = /usr/bin/firefox -new-tab

@@ -83,7 +83,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((modm .|. shiftMask, xK_Return), spawn "tabbed -c alacritty --embed")
 
     -- launch dmenu
-    , ((modm, xK_d), spawn "dmenu_run")
+    , ((modm, xK_d), spawn "/home/terra/.config/rofi/launchers/colorful/launcher.sh")
 
     , ((modm, xK_t), spawn $ scripts ++ "timetable.sh")
 
