@@ -123,7 +123,8 @@ Plug 'skywind3000/asyncrun.vim'
 
 Plug 'prettier/vim-prettier'
 
-Plug 'glacambre/firenvim', { 'do': { _ -> firenvim#install(0) } }
+" run lazygit in neovim
+Plug 'kdheepak/lazygit.nvim', { 'branch': 'nvim-v0.4.3' }
 
 call plug#end()
 
