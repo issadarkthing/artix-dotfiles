@@ -115,9 +115,9 @@ Plug 'leafgarland/typescript-vim'
 " comments in json file
 Plug 'neoclide/jsonc.vim'
 
-Plug 'vim-pandoc/vim-pandoc'
-Plug 'vim-pandoc/vim-pandoc-syntax'
-Plug 'vim-pandoc/vim-rmarkdown'
+" Plug 'vim-pandoc/vim-pandoc'
+" Plug 'vim-pandoc/vim-pandoc-syntax'
+" Plug 'vim-pandoc/vim-rmarkdown'
 
 Plug 'skywind3000/asyncrun.vim'
 
@@ -125,6 +125,8 @@ Plug 'prettier/vim-prettier'
 
 " run lazygit in neovim
 Plug 'kdheepak/lazygit.nvim', { 'branch': 'nvim-v0.4.3' }
+
+Plug 'junegunn/goyo.vim'
 
 call plug#end()
 
@@ -221,7 +223,14 @@ augroup personal_preference
 
 	autocmd FileType typescript call Compile_ts()
 
+	autocmd FileType go call GoBindings()
+
 augroup END
+
+function! GoBindings()
+	nnoremap <silent> <leader>a :GoAlternate<cr>
+	nnoremap <silent> <leader>t :GoTest<cr>
+endfunction
 
 function! Compile_ts()
 	nnoremap <silent> \ll :CocCommand tsserver.watchBuild<cr>
@@ -316,7 +325,9 @@ noremap <silent> <C-o> <C-o>zz
 noremap <silent> <C-i> <C-i>zz
 
 " remap escape key to exit fzf
-tnoremap <expr> <Esc> (&filetype == "fzf") ? "<Esc>" : "<c-\><c-n>"
+if &filetype == "fzf" || &filetype == "lazygit"
+	tnoremap <buffer> <Esc> <c-\><c-n>
+endif
 
 " map ripgrep
 nnoremap <leader>rg :Rg<CR>
@@ -445,8 +456,8 @@ nmap <silent> [g <Plug>(coc-diagnostic-prev)
 nmap <silent> ]g <Plug>(coc-diagnostic-next)
 
 " navigate trough quickfix list
-nnoremap <silent> ]] :cnext<esc>zz
-nnoremap <silent> [[ :cprev<esc>zz
+nnoremap <silent><leader>cn :cnext<esc>zz
+nnoremap <silent><leader>cp :cprev<esc>zz
 
 function! GetBufferList()
   redir =>buflist
@@ -650,7 +661,7 @@ nnoremap <leader>bb :Buffers<cr>
 nnoremap <M-`> <C-^>
 nnoremap n nzzzv
 nnoremap N Nzzzv
-nnoremap m :w<cr>
+nnoremap m :silent w<cr>
 
 
 
@@ -770,3 +781,6 @@ highlight DiffDelete ctermfg=black
 highlight DiffAdd ctermfg=black ctermbg=29
 highlight DiffChange ctermfg=black ctermbg=31
 highlight DiffText ctermfg=black ctermbg=190
+
+nnoremap <silent> <leader>lz :LazyGit<cr>
+nnoremap <silent> <leader>gy :Goyo<cr>
